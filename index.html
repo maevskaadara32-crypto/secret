@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Секретная комната</title>
+<style>
+{ box-sizing: border-box; margin: 0; padding: 0; }
+body {
+font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+background: linear-gradient(135deg, #1a1a2e, #16213e);
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+color: #fff;
+padding: 20px;
+}
+h1 {
+margin-bottom: 10px;
+font-size: 2em;
+text-shadow: 0 0 10px #ffd700;
+}
+.room {
+width: 90%;
+max-width: 700px;
+height: 400px;
+background: radial-gradient(circle at center, #3a3a5c, #1a1a2e);
+border: 4px solid #555;
+border-radius: 20px;
+position: relative;
+box-shadow: inset 0 0 60px rgba(0,0,0,0.8);
+overflow: hidden;
+}
+.object {
+position: absolute;
+cursor: pointer;
+user-select: none;
+transition: transform 0.2s;
+text-align: center;
+}
+.object:hover { transform: scale(1.1); }
+.key {
+top: 60%;
+left: 20%;
+font-size: 4em;
+animation: glow 1.5s infinite alternate;
+}
+@keyframes glow {
+from { text-shadow: 0 0 5px #ffd700; }
+to   { text-shadow: 0 0 25px #ffd700, 0 0 40px #ffaa00; }
+}
+.key.found {
+opacity: 0.3;
+animation: none;
+cursor: default;
+}
+.door {
+top: 15%;
+right: 10%;
+width: 120px;
+height: 220px;
+background: linear-gradient(180deg, #6b4423, #3e2713);
+border: 4px solid #2a1a0a;
+border-radius: 10px 10px 0 0;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2em;
+transition: transform 0.8s ease-in-out;
+transform-origin: left center;
+}
+.door .lock { font-size: 1.5em; }
+.door.open {
+transform: perspective(600px) rotateY(-70deg);
+background: linear-gradient(180deg, #4a2f18, #2a1a0a);
+}
+.door.open .lock { display: none; }
+.message {
+margin-top: 20px;
+min-height: 30px;
+font-size: 1.3em;
+text-align: center;
+padding: 10px 20px;
+background: rgba(255,255,255,0.1);
+border-radius: 10px;
+max-width: 700px;
+}
+.win {
+font-size: 1.5em;
+color: #ffd700;
+text-shadow: 0 0 15px #ffd700;
+animation: pulse 1s infinite alternate;
+}
+@keyframes pulse {
+from { transform: scale(1); }
+to   { transform: scale(1.05); }
+}
+.hint {
+margin-top: 15px;
+font-size: 0.9em;
+opacity: 0.7;
+}
+</style>
+</head>
+<body>
+<h1>🔐 Секретная комната</h1>
+<div class="room">
+<div class="object key" id="key">🔑</div>
+<div class="object door" id="door">
+  <span class="lock">🔒</span>
+</div>
+</div>
+<div class="message" id="message">Найди ключ и открой дверь!</div>
+<div class="hint">Подсказка: сначала кликни на светящийся ключ 🔑</div>
+<script>
+  let keyFound = false;
+  let doorOpened = false;
+const key = document.getElementById('key');
+  const door = document.getElementById('door');
+  const message = document.getElementById('message');
+// Правило 1: ЕСЛИ пользователь нажал на ключ → ТО ключ становится найденным
+  key.addEventListener('click', function() {
+    if (doorOpened) return;
+    if (keyFound) {
+      message.textContent = 'Ключ уже у тебя! Теперь открой дверь 🚪';
+      return;
+    }
+    keyFound = true;
+    key.classList.add('found');
+    message.textContent = '🎉 Ты нашёл ключ! Теперь открой дверь!';
+  });
+// Правило 2: ЕСЛИ пользователь нажал на дверь И ключ уже найден → ТО дверь откроется
+  door.addEventListener('click', function() {
+    if (doorOpened) {
+      message.textContent = 'Дверь уже открыта! Ты победил! 🏆';
+      return;
+    }
+    if (!keyFound) {
+      // Нарушение порядка: дверь не открывается
+      message.textContent = '🔒 Дверь заперта! Сначала найди ключ 🔑';
+      door.style.animation = 'shake 0.4s';
+      setTimeout(() => door.style.animation = '', 400);
+      return;
+    }
+    doorOpened = true;
+    door.classList.add('open');
+    message.textContent = '🎊 Дверь открыта! Ты выбрался из комнаты!';
+    message.classList.add('win');
+  });
+</script>
+<style>
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+</style>
+</body>
+</html>
